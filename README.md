@@ -1,16 +1,31 @@
 # Unit 18 Nosql: Workout Tracker
 
+no modifications needed to develop folder
+api routes help build routes table
+
+
 create Mongo database 
 Mongoose schema
 Express routes
 
+deploy to heroku
+  * dont forget to seed heroku
+
+set up mongo db atlas
+then point heroku app to atlas server (links in slack resources)
+
+create server, connect to mongo database
 
 on page load:
+fitness tracker page: buttons to make new workout, or continue last workout
+dashboard: graphs
 * options:
   * create a new workout
     *POST('/workouts')
     *new workout plan- api.js lines 26-36
     *db.workouts.insert() -> new workout plan
+    new data set
+    exercise
   * continue with their last workout
     *GET('/workouts')
       *In descending order so the last workout is index 0 in workout array, and display only that index?
