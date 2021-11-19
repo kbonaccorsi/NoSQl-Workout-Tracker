@@ -7,8 +7,7 @@ const logger = require('morgan');
 //use dynamic port otherwise use port 3001
 const PORT = process.env.PORT || 3001;
 
-//variable db connects to models folder
-const db = require('./models');
+
 
 const app = express();
 
@@ -20,36 +19,12 @@ app.use(express.json());
 //
 app.use(express.static('public'));
 
+app.use(require('./routes/apiRoutes'));
+app.use(require('./routes/htmlRoutes'));
+
+//app.use(require('./routes/htmlRoutes'));
+
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/populatedb', { useNewURLParser: true });
-
-//HOW DO I MAKE THE SEEDS POULATE THIS?  OR IS THE USER INPUT SUPPOSED TO?
-db.Workout.create({})
-  .then(dbWorkout => {
-    console.log(dbWorkout);
-  })
-  .catch(({ data }) => {
-    console.log(data);
-  });
-
-app.get('/stats', (req, res) => {
-  db.Workout.find({})
-  .then(dbWorkout => {
-    res.json(dbWorkout);
-  })
-  .catch(err => {
-    res.json(err);
-  })
-});
-
-app.get('/exercise', (req, res) => {
-  db.Workout.find({})
-  .then(dbWorkout => {
-    res.json(dbWorkout);
-  })
-  .catch(err => {
-    res.json(err);
-  })
-});
 
 app.listen(PORT, () => {
   console.log(`port ${PORT} running`);
