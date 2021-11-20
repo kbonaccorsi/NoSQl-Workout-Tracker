@@ -1,70 +1,78 @@
-//variable db connects to models folder
+//router allows routes to export
 const router = require('express').Router();
+//connects Workout db to get data
 const Workout = require('../models/Workout.js');
 
 //get most current workout information
 router.get('/api/workouts', (req, res) => {
-  Workout.aggregate( [
-    //adds new fields(mostCurrentWorkout)
-    {$addFields: {
-      totalDuration: { $sum: '$exercises.duration' },
-      combinedWeight: { $sum: '$exercises.weight' }
+  Workout.aggregate([
+    //adds new fields to the most current workout
+    {
+      $addFields: {
+        //totalDuration from stats.js line 19, exercises from Workout.js line 10
+        'totalDuration': { $sum: '$exercises.duration' },
+        //totalWeight from stats.js lines 1-15, exercises from Workout.js line 10
+        'totalWeight': { $sum: '$exercises.weight' }
       }
     }
-  ] )
-
-  .then(data => {
-    res.json(data);
-  })
-  .catch(err => {
-    res.json(err);
-  })
+  ])
+    //return data, otherwise return error
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 });
 
-//create workout
-router.post('/api/workouts', (req, res) => {
-  Workout.create({})
-  .then(data => {
-    res.json(data);
-  })
-  .catch(({ data }) => {
-    res.json(data);
-  });
+//create workout from user input
+router.post('/api/workouts', ({ body }, res) => {
+  Workout.create(body)
+    //return data, otherwise return error
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 });
 
-//update workout with specific id
-router.put('/api/workouts/:id', ({ body, params }, res) => {
-  let id = params.id;
-  
-  Workout.update({_id:id}, { $push: {exercises: body}}, { new: true, runValidators: true } )
-  .then(data => {
-    res.json(data);
-  })
-  .catch(({ data }) => {
-    res.json(data);
-  });
+//update workout using specific id
+router.put('/api/workouts/:id', (req, res) => {
+  Workout.findByIdAndUpdate(
+    req.params.id,
+    { $push: { exercises: req.body } },
+    { new: true, runValidators: true })
+    //return data otherwise, return error
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 });
 
 //get workouts from the last 7 days
-// router.get('/api/workouts/range', (req, res) => {
-//   Workout.aggregate([
-//     $addField
-
-//     $sum
-//   ])
-  
-  
-//   find({}).limit(7).sort({ id: -1 })
-//   .then(data => {
-//     res.json(data);
-//   })
-//   .catch(err => {
-//     res.json(err);
-//   })
-// });
-
 router.get('/api/workouts/range', (req, res) => {
-  Workout.find({}).limit(7)
+  Workout.aggregate([
+    //add totalDuration field and totalWeight field to 7 day review
+    {
+      $addFields: {
+        'totalDuration': { $sum: '$exercises.duration' },
+        'totalWeight': { $sum: '$exercises.weight' }
+      }
+    }
+  ])
+  //sort in descending order to get the most current 7 day range, and then sort in ascending order to display from the first of the 7 days to the most current of the 7 days
+  .sort({'_id': -1}).limit(7).sort({ '_id': 1 })
+  //return data otherwise return error  
+  .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      res.json(err);
+    })
 });
+
 
 module.exports = router;
