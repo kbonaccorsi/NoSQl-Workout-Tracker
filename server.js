@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const logger = require('morgan');
 //const mongojs = require('mongojs');
-//const path = require('path');
+
 
 //use dynamic port otherwise use port 3001
 const PORT = process.env.PORT || 3001;
