@@ -2,9 +2,17 @@
 const router = require('express').Router();
 const Workout = require('../models/Workout.js');
 
-//get workout information
+//get most current workout information
 router.get('/api/workouts', (req, res) => {
-  Workout.find({})
+  Workout.aggregate( [
+    //adds new fields(mostCurrentWorkout)
+    {$addFields: {
+      totalDuration: { $sum: '$exercises.duration' },
+      combinedWeight: { $sum: '$exercises.weight' }
+      }
+    }
+  ] )
+
   .then(data => {
     res.json(data);
   })
@@ -38,14 +46,25 @@ router.put('/api/workouts/:id', ({ body, params }, res) => {
 });
 
 //get workouts from the last 7 days
+// router.get('/api/workouts/range', (req, res) => {
+//   Workout.aggregate([
+//     $addField
+
+//     $sum
+//   ])
+  
+  
+//   find({}).limit(7).sort({ id: -1 })
+//   .then(data => {
+//     res.json(data);
+//   })
+//   .catch(err => {
+//     res.json(err);
+//   })
+// });
+
 router.get('/api/workouts/range', (req, res) => {
-  Workout.find({}).limit(7).sort({ id: -1 })
-  .then(data => {
-    res.json(data);
-  })
-  .catch(err => {
-    res.json(err);
-  })
+  Workout.find({}).limit(7)
 });
 
 module.exports = router;
